@@ -100,10 +100,16 @@ git svn show-externals|grep -vE '#|^$'| \
 	sed 's/\(-r\)[ ]*\([0-9]\{1,\}\)/\1\2/'|while read -a words
 do
 	[ -z "${words[*]}" ] && continue
-
-	local_directory="$(echo ${words[0]}|sed 's,^/,,')"
+	
 	revision=""
-	remote_url="${words[1]}"
+  # Handle the case where the URL is returned first, followed by the external link name
+  if echo "{$words[1]}" | grep '\/' -q ; then
+    local_directory="$(echo ${words[1]}|sed 's,^/,,')"
+	  remote_url="${words[0]}"
+  else
+    local_directory="$(echo ${words[0]}|sed 's,^/,,')"
+	  remote_url="${words[1]}"
+  fi
 
     check_excluded=$(is_excluded $local_directory)
 
